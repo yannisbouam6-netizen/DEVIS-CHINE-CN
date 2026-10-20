@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Devis Pro – Gestion de devis</title>
+<style>
+:root{--bg:#f4f5f8;--card:#fff;--tx:#1b1f2a;--mut:#667085;--bd:#e1e4ea;--pri:#3b5bdb;--ptx:#fff;--ok:#2b8a3e;--ko:#c92a2a;--wa:#e67700;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12141a;--card:#1b1e27;--tx:#e8eaf0;--mut:#9aa1b2;--bd:#2c303c;--pri:#748ffc;--ptx:#10131c}}
+:root[data-theme="dark"]{--bg:#12141a;--card:#1b1e27;--tx:#e8eaf0;--mut:#9aa1b2;--bd:#2c303c;--pri:#748ffc;--ptx:#10131c}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.app{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+nav{background:var(--card);border-right:1px solid var(--bd);padding:20px 12px;position:sticky;top:0;height:100vh}
+nav h1{font-size:18px;margin:0 8px 18px}nav button{display:block;width:100%;text-align:left;background:none;border:0;color:var(--tx);padding:10px 12px;border-radius:8px;font:inherit;cursor:pointer;margin-bottom:4px}
+nav button.on{background:var(--pri);color:var(--ptx)}
+main{padding:24px;max-width:1100px;width:100%}
+h1.t{margin:0 0 16px;font-size:24px}h2{font-size:17px;margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:16px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.stat{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px}.stat b{display:block;font-size:24px}.stat span{color:var(--mut);font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mut)}
+input,select,textarea{font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;width:100%}
+textarea{min-height:70px}
+button.b{background:var(--pri);color:var(--ptx);border:0;border-radius:8px;padding:8px 14px;font:inherit;cursor:pointer}
+button.g{background:none;color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:6px 10px;font:inherit;cursor:pointer}
+button.d{color:var(--ko);border-color:var(--ko)}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}.bar>*{width:auto}.bar input[type=search]{flex:1;min-width:160px}
+.scroll{overflow-x:auto}table{border-collapse:collapse;width:100%}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--bd);white-space:nowrap}th{font-size:12px;color:var(--mut);text-transform:uppercase}
+td.n,th.n{text-align:right}#lines td input{min-width:70px}#lines td:first-child input{min-width:200px}
+.tag{padding:2px 8px;border-radius:99px;font-size:12px;border:1px solid var(--bd)}
+.s-draft{color:var(--mut)}.s-sent{color:var(--pri)}.s-accepted{color:var(--ok)}.s-rejected{color:var(--ko)}.s-expired{color:var(--wa)}
+.err{background:color-mix(in srgb,var(--ko) 12%,transparent);border:1px solid var(--ko);color:var(--ko);padding:10px 14px;border-radius:8px;margin-bottom:12px}
+.tots{margin-left:auto;max-width:300px}.tots div{display:flex;justify-content:space-between;padding:3px 0}.tots .big{font-weight:700;font-size:18px;border-top:1px solid var(--bd);margin-top:4px;padding-top:6px}
+dialog{border:1px solid var(--bd);border-radius:12px;background:var(--card);color:var(--tx);max-width:520px;width:92%}
+dialog::backdrop{background:#0007}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:8px;opacity:0;transition:.3s;pointer-events:none;z-index:9}#toast.show{opacity:1}
+.sheet{background:#fff;color:#111;border:1px solid var(--bd);border-radius:6px;padding:32px;max-width:800px;margin:0 auto 16px}
+.sheet table th{color:#555}.sheet td,.sheet th{border-color:#ddd;white-space:normal}.sheet .tots div{color:#111}
+.sh-head{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}.sh-head img{max-height:56px;display:block;margin-bottom:6px}
+.logo{width:48px;height:48px;border-radius:10px;background:#3b5bdb;color:#fff;display:grid;place-items:center;font-size:24px;font-weight:700;margin-bottom:6px}
+.r{text-align:right}.ok{color:var(--ok)}.ko{color:var(--ko)}
+@media (max-width:800px){.app{display:block}nav{position:fixed;bottom:0;left:0;right:0;top:auto;height:auto;z-index:5;display:flex;border-right:0;border-top:1px solid var(--bd);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}nav h1{display:none}nav button{text-align:center;font-size:12px;padding:6px 2px;margin:0}main{padding:16px 12px 90px}.sheet{padding:16px}}
+@media print{body *{visibility:hidden}.sheet,.sheet *{visibility:visible}.sheet{position:absolute;left:0;top:0;width:100%;max-width:none;border:0;margin:0}@page{margin:14mm}}
+</style></head><body>
+<div class="app"><nav id="nav"></nav><main id="main"></main></div>
+<dialog id="dlg"></dialog><div id="toast"></div>
+<script>
+"use strict";
+/* ============ Module Calc : calculs ============ */
+const Calc={
+ r2:n=>Math.round((n+Number.EPSILON)*100)/100,
+ line(l){return this.r2(l.qty*l.price*(1-(l.discount||0)/100))},
+ totals(lines){let ht=0,tva=0;for(const l of lines){const h=this.line(l);ht+=h;tva+=this.r2(h*l.vat/100)}
+  ht=this.r2(ht);tva=this.r2(tva);return{ht,tva,ttc:this.r2(ht+tva)}}
+};
+/* ============ Module Valid : validation ============ */
+const Valid={
+ num:(v)=>typeof v==="number"&&isFinite(v),
+ quote(q){const e=[];
+  if(!q.clientId)e.push("Sélectionnez un client.");
+  if(!q.date||!q.expiry)e.push("Les dates de création et d’expiration sont obligatoires.");
+  else if(q.expiry<q.date)e.push("La date d’expiration doit être postérieure à la date de création.");
+  if(!q.lines.length)e.push("Ajoutez au moins une ligne de produit ou service.");
+  q.lines.forEach((l,i)=>{const n=i+1;
+   if(!l.desc.trim())e.push(`Ligne ${n} : la description est obligatoire.`);
+   if(!this.num(l.qty)||l.qty<=0)e.push(`Ligne ${n} : la quantité doit être supérieure à 0.`);
+   if(!this.num(l.price)||l.price<0)e.push(`Ligne ${n} : le prix unitaire HT doit être un nombre positif.`);
+   if(!this.num(l.vat)||l.vat<0||l.vat>100)e.push(`Ligne ${n} : le taux de TVA doit être compris entre 0 et 100 %.`);
+   if(!this.num(l.discount)||l.discount<0||l.discount>100)e.push(`Ligne ${n} : la remise doit être comprise entre 0 et 100 %.`)});
+  return e},
+ client(c){const e=[];if(!c.name.trim())e.push("Le nom ou la raison sociale est obligatoire.");
+  if(c.email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.email))e.push("L’adresse e-mail n’est pas valide.");
+  if(c.phone&&!/^[+\d\s().-]{6,}$/.test(c.phone))e.push("Le numéro de téléphone n’est pas valide.");return e}
+};
+/* ============ Module Store : persistance ============ */
+const iso=d=>d.toISOString().slice(0,10),addDays=(n)=>{const d=new Date();d.setDate(d.getDate()+n);return iso(d)};
+const uid=()=>Math.random().toString(36).slice(2,10);
+const Store={key:"devispro.v1",mem:null,
+ load(){try{const r=localStorage.getItem(this.key);if(r)return JSON.parse(r)}catch(e){}return this.mem||this.seed()},
+ save(d){this.mem=d;try{localStorage.setItem(this.key,JSON.stringify(d))}catch(e){}},
+ seed(){const L=(desc,qty,price,vat,discount=0)=>({desc,qty,price,vat,discount});
+  const cl=[{id:"c1",name:"Boulangerie Martin",address:"12 rue des Halles, 59000 Lille",email:"contact@boulangerie-martin.fr",phone:"03 20 00 11 22",taxId:"FR12345678901"},
+   {id:"c2",name:"Cabinet Durand & Associés",address:"8 avenue Foch, 75116 Paris",email:"admin@durand-associes.fr",phone:"01 40 00 22 33",taxId:""},
+   {id:"c3",name:"Sophie Lambert",address:"5 place du Marché, 62100 Calais",email:"sophie.lambert@example.com",phone:"06 12 34 56 78",taxId:""}];
+  const T="Paiement à 30 jours par virement bancaire.";
+  const q=(n,c,d,x,s,lines,notes="")=>({id:uid(),number:`DEV-${new Date().getFullYear()}-${String(n).padStart(4,"0")}`,date:addDays(d),expiry:addDays(x),clientId:c,status:s,lines,notes,terms:T});
+  return{company:{name:"Atelier Exemple",address:"1 rue de l’Industrie\n59140 Dunkerque",email:"contact@atelier-exemple.fr",phone:"03 28 00 00 00",taxId:"",logo:""},
+   settings:{currency:"EUR",defaultVat:20,terms:T,prefix:"DEV",seq:5},clients:cl,
+   quotes:[q(1,"c1",-40,-10,"accepted",[L("Création de site vitrine",1,1200,20),L("Hébergement annuel",1,120,20,10)]),
+    q(2,"c2",-20,10,"sent",[L("Audit de site web",2,450,20),L("Rapport de recommandations",1,300,20)],"Intervention sous 15 jours."),
+    q(3,"c3",-5,25,"draft",[L("Retouches photo",10,15,10)]),
+    q(4,"c1",-60,-30,"rejected",[L("Impression de flyers",500,0.18,20)])]}}
+};
+/* ============ Utilitaires ============ */
+let db=Store.load(),route={v:"dash"},draft=null,F={q:"",s:"",from:"",to:""};
+const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money=n=>new Intl.NumberFormat("fr-FR",{style:"currency",currency:db.settings.currency}).format(n);
+const ST={draft:"Brouillon",sent:"Envoyé",accepted:"Accepté",rejected:"Refusé",expired:"Expiré"};
+const eff=q=>q.status==="sent"&&q.expiry<iso(new Date())?"expired":q.status;
+const tag=q=>`<span class="tag s-${eff(q)}">${ST[eff(q)]}</span>`;
+const save=()=>Store.save(db),clientOf=id=>db.clients.find(c=>c.id===id);
+const fmtD=d=>d?d.split("-").reverse().join("/"):"";
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2600)}
+function confirmBox(msg,cb){const d=$("#dlg");d.innerHTML=`<h2>Confirmation</h2><p>${esc(msg)}</p><div class="bar"><button class="g" data-a="close">Annuler</button><button class="b" id="yes" style="background:var(--ko)">Supprimer</button></div>`;d.showModal();$("#yes").onclick=()=>{d.close();cb()}}
+/* ============ Vues ============ */
+function vDash(){const Q=db.quotes,c=s=>Q.filter(q=>eff(q)===s).length,tot=Q.reduce((a,q)=>a+Calc.totals(q.lines).ttc,0);
+ const st=[["Total devis",Q.length],["Brouillons",c("draft")],["Envoyés",c("sent")],["Acceptés",c("accepted")],["Refusés",c("rejected")],["Expirés",c("expired")],["Montant total TTC",money(Calc.r2(tot))]];
+ return `<h1 class="t">Tableau de bord</h1><div class="stats">${st.map(s=>`<div class="stat"><b>${s[1]}</b><span>${s[0]}</span></div>`).join("")}</div>
+ <div class="card"><h2>Derniers devis</h2>${qTable([...Q].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5))}</div>`}
+function qTable(list){if(!list.length)return`<p style="color:var(--mut)">Aucun devis.</p>`;
+ return `<div class="scroll"><table><tr><th>N°</th><th>Client</th><th>Date</th><th>Expire</th><th>Statut</th><th class="n">Total TTC</th><th></th></tr>${list.map(q=>`<tr><td><a href="#" data-a="view" data-id="${q.id}">${esc(q.number)}</a></td><td>${esc(clientOf(q.clientId)?.name||"—")}</td><td>${fmtD(q.date)}</td><td>${fmtD(q.expiry)}</td><td>${tag(q)}</td><td class="n">${money(Calc.totals(q.lines).ttc)}</td>
+ <td class="n"><button class="g" data-a="edit" data-id="${q.id}">Modifier</button> <button class="g" data-a="dup" data-id="${q.id}">Dupliquer</button> <button class="g d" data-a="delq" data-id="${q.id}">Supprimer</button></td></tr>`).join("")}</table></div>`}
+function filtered(){const s=F.q.toLowerCase();return db.quotes.filter(q=>(!F.s||eff(q)===F.s)&&(!F.from||q.date>=F.from)&&(!F.to||q.date<=F.to)&&(!s||q.number.toLowerCase().includes(s)||(clientOf(q.clientId)?.name||"").toLowerCase().includes(s))).sort((a,b)=>b.date.localeCompare(a.date))}
+function vQuotes(){return `<h1 class="t">Devis</h1><div class="card"><div class="bar"><input type="search" id="fq" placeholder="Rechercher un n° ou un client" value="${esc(F.q)}">
+ <select id="fs"><option value="">Tous les statuts</option>${Object.entries(ST).map(([k,v])=>`<option value="${k}" ${F.s===k?"selected":""}>${v}</option>`).join("")}</select>
+ <input type="date" id="ff" value="${F.from}" title="Du"><input type="date" id="ft" value="${F.to}" title="Au"><button class="b" data-a="new">+ Nouveau devis</button></div><div id="qt">${qTable(filtered())}</div></div>`}
+function vClients(){const s=(F.c||"").toLowerCase(),l=db.clients.filter(c=>!s||[c.name,c.email,c.phone].join(" ").toLowerCase().includes(s));
+ return `<h1 class="t">Clients</h1><div class="card"><div class="bar"><input type="search" id="fc" placeholder="Rechercher un client" value="${esc(F.c||"")}"><button class="b" data-a="cform">+ Nouveau client</button></div><div id="ct">${cTable(l)}</div></div>`}
+function cTable(l){if(!l.length)return`<p style="color:var(--mut)">Aucun client.</p>`;
+ return `<div class="scroll"><table><tr><th>Nom</th><th>E-mail</th><th>Téléphone</th><th>N° fiscal</th><th></th></tr>${l.map(c=>`<tr><td>${esc(c.name)}<br><small style="color:var(--mut)">${esc(c.address)}</small></td><td>${esc(c.email)}</td><td>${esc(c.phone)}</td><td>${esc(c.taxId)}</td><td class="n"><button class="g" data-a="cform" data-id="${c.id}">Modifier</button> <button class="g d" data-a="delc" data-id="${c.id}">Supprimer</button></td></tr>`).join("")}</table></div>`}
+function vSettings(){const c=db.company,s=db.settings,f=(id,l,v,t="text")=>`<label>${l}<input id="${id}" type="${t}" value="${esc(v)}"></label>`;
+ return `<h1 class="t">Paramètres</h1><div id="err" class="err" hidden></div><div class="card"><h2>Entreprise</h2><div class="grid">${f("s-name","Nom",c.name)}${f("s-email","E-mail",c.email,"email")}${f("s-phone","Téléphone",c.phone)}${f("s-tax","N° d’identification fiscale",c.taxId)}
+ <label>Adresse<textarea id="s-addr">${esc(c.address)}</textarea></label><label>Logo<input type="file" id="s-logo" accept="image/*">${c.logo?`<img src="${c.logo}" alt="Logo" style="max-height:40px;margin-top:6px">`:""}</label></div></div>
+ <div class="card"><h2>Devis</h2><div class="grid"><label>Devise<select id="s-cur">${["EUR","USD","GBP","CHF","CAD","MAD"].map(x=>`<option ${x===s.currency?"selected":""}>${x}</option>`).join("")}</select></label>${f("s-vat","TVA par défaut (%)",s.defaultVat,"number")}${f("s-pre","Préfixe des numéros",s.prefix)}
+ <label>Conditions de paiement<textarea id="s-terms">${esc(s.terms)}</textarea></label></div></div>
+ <div class="bar"><button class="b" data-a="saveset">Enregistrer les paramètres</button><button class="g" data-a="tests">Lancer les tests de calcul</button><button class="g d" data-a="reset">Réinitialiser les données d’exemple</button></div><div id="tout"></div>`}
+function sheet(q){const c=db.company,cl=clientOf(q.clientId)||{},t=Calc.totals(q.lines),br=s=>esc(s).replace(/\n/g,"<br>");
+ return `<div class="sheet"><div class="sh-head"><div>${c.logo?`<img src="${c.logo}" alt="Logo">`:`<div class="logo">${esc((c.name||"?")[0])}</div>`}<b>${esc(c.name)}</b><br>${br(c.address)}<br>${esc(c.email)} · ${esc(c.phone)}${c.taxId?`<br>N° fiscal : ${esc(c.taxId)}`:""}</div>
+ <div class="r"><h2 style="margin:0">DEVIS</h2><b>${esc(q.number)}</b><br>Date : ${fmtD(q.date)}<br>Valable jusqu’au : ${fmtD(q.expiry)}</div></div>
+ <p><b>Client</b><br>${esc(cl.name)}<br>${br(cl.address)}<br>${esc(cl.email)} ${esc(cl.phone)}${cl.taxId?`<br>N° fiscal : ${esc(cl.taxId)}`:""}</p>
+ <div class="scroll"><table><tr><th>Description</th><th class="n">Qté</th><th class="n">PU HT</th><th class="n">Remise</th><th class="n">TVA</th><th class="n">Total HT</th></tr>${q.lines.map(l=>`<tr><td>${esc(l.desc)}</td><td class="n">${l.qty}</td><td class="n">${money(l.price)}</td><td class="n">${l.discount?l.discount+" %":"—"}</td><td class="n">${l.vat} %</td><td class="n">${money(Calc.line(l))}</td></tr>`).join("")}</table></div>
+ <div class="tots"><div><span>Total HT</span><span>${money(t.ht)}</span></div><div><span>TVA</span><span>${money(t.tva)}</span></div><div class="big"><span>Total TTC</span><span>${money(t.ttc)}</span></div></div>
+ <p><b>Conditions de paiement</b><br>${br(q.terms)}</p>${q.notes?`<p><b>Notes</b><br>${br(q.notes)}</p>`:""}</div>`}
+function vView(){const q=db.quotes.find(x=>x.id===route.id);if(!q){route={v:"quotes"};return vQuotes()}
+ return `<div class="bar"><button class="g" data-a="go" data-id="quotes">← Retour</button><button class="b" data-a="print">Imprimer / PDF</button><button class="g" data-a="edit" data-id="${q.id}">Modifier</button><button class="g" data-a="dup" data-id="${q.id}">Dupliquer</button>
+ <select id="vst">${Object.entries(ST).map(([k,v])=>`<option value="${k}" ${q.status===k?"selected":""}>${v}</option>`).join("")}</select><button class="g d" data-a="delq" data-id="${q.id}">Supprimer</button></div>${sheet(q)}`}
+function vEdit(){const q=draft;
+ return `<h1 class="t">${q.isNew?"Nouveau devis":"Modifier "+esc(q.number)}</h1><div id="err" class="err" hidden></div><form id="qf"><div class="card grid"><label>Numéro<input value="${esc(q.number)}" disabled></label>
+ <label>Client<select id="f-client"><option value="">— Choisir —</option>${db.clients.map(c=>`<option value="${c.id}" ${c.id===q.clientId?"selected":""}>${esc(c.name)}</option>`).join("")}</select></label>
+ <label>Date de création<input type="date" id="f-date" value="${q.date}"></label><label>Date d’expiration<input type="date" id="f-expiry" value="${q.expiry}"></label>
+ <label>Statut<select id="f-status">${Object.entries(ST).map(([k,v])=>`<option value="${k}" ${q.status===k?"selected":""}>${v}</option>`).join("")}</select></label></div>
+ <div class="card"><h2>Lignes</h2><div class="scroll"><table id="lines"><tr><th>Description</th><th>Qté</th><th>PU HT</th><th>TVA %</th><th>Remise %</th><th class="n">Total HT</th><th></th></tr>${q.lines.map((l,i)=>`<tr data-i="${i}"><td><input data-f="desc" value="${esc(l.desc)}"></td>
+ ${["qty","price","vat","discount"].map(f=>`<td><input data-f="${f}" type="number" step="any" min="0" value="${Number.isNaN(l[f])?"":l[f]}"></td>`).join("")}<td class="n" data-lt>${money(Calc.line(safe(l)))}</td><td><button type="button" class="g d" data-a="dell" data-id="${i}">✕</button></td></tr>`).join("")}</table></div>
+ <p><button type="button" class="g" data-a="addl">+ Ajouter une ligne</button></p><div class="tots" id="tot"></div></div>
+ <div class="card grid"><label>Conditions de paiement<textarea id="f-terms">${esc(q.terms)}</textarea></label><label>Notes<textarea id="f-notes">${esc(q.notes)}</textarea></label></div>
+ <div class="bar"><button type="button" class="b" data-a="saveq">Enregistrer</button><button type="button" class="g" data-a="go" data-id="quotes">Annuler</button></div></form>`}
+const safe=l=>({...l,qty:+l.qty||0,price:+l.price||0,vat:+l.vat||0,discount:+l.discount||0});
+function updTot(){const t=Calc.totals(draft.lines.map(safe));$("#tot").innerHTML=`<div><span>Total HT</span><span>${money(t.ht)}</span></div><div><span>TVA</span><span>${money(t.tva)}</span></div><div class="big"><span>Total TTC</span><span>${money(t.ttc)}</span></div>`;
+ document.querySelectorAll("#lines tr[data-i]").forEach(tr=>tr.querySelector("[data-lt]").textContent=money(Calc.line(safe(draft.lines[tr.dataset.i]))))}
+function readForm(){const q=draft,v=id=>$(id)?.value;q.clientId=v("#f-client");q.date=v("#f-date");q.expiry=v("#f-expiry");q.status=v("#f-status");q.terms=v("#f-terms");q.notes=v("#f-notes");
+ document.querySelectorAll("#lines tr[data-i]").forEach(tr=>{const l=q.lines[tr.dataset.i];tr.querySelectorAll("input").forEach(i=>{const f=i.dataset.f;l[f]=f==="desc"?i.value:(i.value===""?NaN:+i.value)})})}
+function newLine(){return{desc:"",qty:1,price:0,vat:db.settings.defaultVat,discount:0}}
+function showErr(e){const b=$("#err");b.hidden=!e.length;b.innerHTML=e.map(x=>"• "+esc(x)).join("<br>");if(e.length)b.scrollIntoView({block:"center"})}
+/* ============ Actions ============ */
+const A={
+ go(id){route={v:id};render()},view(id){route={v:"view",id};render()},close(){$("#dlg").close()},
+ new(){const s=db.settings;draft={isNew:true,id:uid(),number:`${s.prefix}-${new Date().getFullYear()}-${String(s.seq).padStart(4,"0")}`,date:iso(new Date()),expiry:addDays(30),clientId:"",status:"draft",lines:[newLine()],notes:"",terms:s.terms};route={v:"edit"};render()},
+ edit(id){draft=JSON.parse(JSON.stringify(db.quotes.find(q=>q.id===id)));route={v:"edit"};render()},
+ dup(id){const q=JSON.parse(JSON.stringify(db.quotes.find(x=>x.id===id))),s=db.settings;Object.assign(q,{id:uid(),number:`${s.prefix}-${new Date().getFullYear()}-${String(s.seq).padStart(4,"0")}`,date:iso(new Date()),expiry:addDays(30),status:"draft"});s.seq++;db.quotes.push(q);save();toast("Devis dupliqué : "+q.number);route={v:"view",id:q.id};render()},
+ delq(id){const q=db.quotes.find(x=>x.id===id);confirmBox(`Supprimer définitivement le devis ${q.number} ?`,()=>{db.quotes=db.quotes.filter(x=>x.id!==id);save();toast("Devis supprimé");route={v:"quotes"};render()})},
+ addl(){readForm();draft.lines.push(newLine());render()},dell(i){readForm();draft.lines.splice(+i,1);render()},
+ saveq(){readForm();const e=Valid.quote(draft);showErr(e);if(e.length)return;const q={...draft};delete q.isNew;
+  if(draft.isNew){db.quotes.push(q);db.settings.seq++}else db.quotes=db.quotes.map(x=>x.id===q.id?q:x);save();toast("Devis enregistré");route={v:"view",id:q.id};render()},
+ print(){window.print()},
+ cform(id){const c=clientOf(id)||{},d=$("#dlg"),f=(k,l,t="text")=>`<label>${l}<input name="${k}" type="${t}" value="${esc(c[k])}"></label>`;
+  d.innerHTML=`<form id="cf" data-id="${id||""}"><h2>${id?"Modifier":"Nouveau"} client</h2><div id="cerr" class="err" hidden></div><div class="grid" style="grid-template-columns:1fr">${f("name","Nom ou raison sociale *")}<label>Adresse<textarea name="address">${esc(c.address)}</textarea></label>${f("email","E-mail","email")}${f("phone","Téléphone","tel")}${f("taxId","N° d’identification fiscale (facultatif)")}</div>
+  <div class="bar" style="margin-top:12px"><button type="button" class="g" data-a="close">Annuler</button><button class="b">Enregistrer</button></div></form>`;d.showModal()},
+ delc(id){const n=db.quotes.filter(q=>q.clientId===id).length;if(n)return toast(`Impossible : ce client est lié à ${n} devis.`);
+  confirmBox("Supprimer ce client ?",()=>{db.clients=db.clients.filter(c=>c.id!==id);save();toast("Client supprimé");render()})},
+ saveset(){const v=id=>$(id).value.trim(),vat=parseFloat($("#s-vat").value),e=[];
+  if(!v("#s-name"))e.push("Le nom de l’entreprise est obligatoire.");if(!(vat>=0&&vat<=100))e.push("La TVA par défaut doit être comprise entre 0 et 100 %.");if(!v("#s-pre"))e.push("Le préfixe est obligatoire.");
+  showErr(e);if(e.length)return;Object.assign(db.company,{name:v("#s-name"),email:v("#s-email"),phone:v("#s-phone"),taxId:v("#s-tax"),address:$("#s-addr").value});
+  Object.assign(db.settings,{currency:$("#s-cur").value,defaultVat:vat,prefix:v("#s-pre").toUpperCase(),terms:$("#s-terms").value});save();toast("Paramètres enregistrés");render()},
+ reset(){confirmBox("Remplacer toutes les données par les données d’exemple ?",()=>{db=Store.seed();save();toast("Données réinitialisées");render()})},
+ tests(){$("#tout").innerHTML=`<div class="card"><h2>Tests de calcul</h2>${Tests.run().map(([n,ok,d])=>`<div class="${ok?"ok":"ko"}">${ok?"✔":"✘"} ${esc(n)}${ok?"":" — "+esc(d)}</div>`).join("")}</div>`}
+};
+/* ============ Tests ============ */
+const Tests={run(){const r=[],eq=(n,a,b)=>r.push([n,a===b,`obtenu ${a}, attendu ${b}`]),L=(qty,price,vat,discount=0)=>({qty,price,vat,discount});
+ eq("Ligne : 2 × 50 = 100 HT",Calc.line(L(2,50,20)),100);
+ eq("Remise 10 % sur 100 HT = 90",Calc.line(L(1,100,20,10)),90);
+ eq("Remise 100 % = 0",Calc.line(L(5,10,20,100)),0);
+ eq("Arrondi : 3 × 0,10 = 0,30",Calc.line(L(3,0.1,20)),0.3);
+ const a=Calc.totals([L(3,19.99,20)]);eq("3 × 19,99 : HT 59,97",a.ht,59.97);eq("3 × 19,99 : TVA 11,99",a.tva,11.99);eq("3 × 19,99 : TTC 71,96",a.ttc,71.96);
+ const b=Calc.totals([L(1,100,20),L(1,50,10)]);eq("TVA mixte 20 % + 10 % : TVA 25",b.tva,25);eq("TVA mixte : TTC 175",b.ttc,175);
+ const c=Calc.totals([L(1,200,20,10),L(2,25,5.5)]);eq("Remise + TVA 5,5 % : HT 230",c.ht,230);eq("Remise + TVA 5,5 % : TVA 38,75",c.tva,38.75);eq("Remise + TVA 5,5 % : TTC 268,75",c.ttc,268.75);
+ eq("Devis sans ligne : total 0",Calc.totals([]).ttc,0);
+ eq("Validation : devis vide refusé",Valid.quote({clientId:"",date:"2026-01-01",expiry:"2026-01-31",lines:[]}).length,2);
+ return r}};
+/* ============ Rendu & événements ============ */
+function render(){const v=route.v,nav=[["dash","📊","Tableau de bord"],["quotes","🧾","Devis"],["clients","👥","Clients"],["settings","⚙️","Paramètres"]],cur=["view","edit"].includes(v)?"quotes":v;
+ $("#nav").innerHTML=`<h1>🧾 Devis Pro</h1>`+nav.map(n=>`<button data-a="go" data-id="${n[0]}" class="${n[0]===cur?"on":""}">${n[1]} ${n[2]}</button>`).join("");
+ $("#main").innerHTML={dash:vDash,quotes:vQuotes,clients:vClients,settings:vSettings,view:vView,edit:vEdit}[v]();if(v==="edit")updTot();window.scrollTo(0,0)}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-a]");if(!b)return;e.preventDefault();A[b.dataset.a]?.(b.dataset.id,b)});
+document.addEventListener("input",e=>{const t=e.target;
+ if(t.closest("#qf")){readForm();updTot()}
+ if(t.id==="fq"||t.id==="fs"||t.id==="ff"||t.id==="ft"){F.q=$("#fq").value;F.s=$("#fs").value;F.from=$("#ff").value;F.to=$("#ft").value;$("#qt").innerHTML=qTable(filtered())}
+ if(t.id==="fc"){F.c=t.value;const s=t.value.toLowerCase();$("#ct").innerHTML=cTable(db.clients.filter(c=>[c.name,c.email,c.phone].join(" ").toLowerCase().includes(s)))}});
+document.addEventListener("change",e=>{const t=e.target;
+ if(t.id==="vst"){const q=db.quotes.find(x=>x.id===route.id);q.status=t.value;save();toast("Statut mis à jour");render()}
+ if(t.id==="s-logo"&&t.files[0]){if(t.files[0].size>300000)return toast("Logo trop volumineux (300 Ko maximum).");const r=new FileReader();r.onload=()=>{db.company.logo=r.result;save();render()};r.readAsDataURL(t.files[0])}});
+document.addEventListener("submit",e=>{if(e.target.id!=="cf")return;e.preventDefault();const f=e.target,c=Object.fromEntries(new FormData(f));["name","address","email","phone","taxId"].forEach(k=>c[k]=(c[k]||"").trim());
+ const er=Valid.client(c),b=$("#cerr");b.hidden=!er.length;b.innerHTML=er.join("<br>");if(er.length)return;
+ if(f.dataset.id)Object.assign(clientOf(f.dataset.id),c);else db.clients.push({id:uid(),...c});save();$("#dlg").close();toast("Client enregistré");render()});
+render();
+</script></body></html>
